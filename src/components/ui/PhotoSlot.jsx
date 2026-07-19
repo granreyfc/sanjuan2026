@@ -1,4 +1,5 @@
 import { ImageIcon } from 'lucide-react'
+import { asset } from '../../config/assets.js'
 
 /*
  * Marco de foto. Si `src` está vacío muestra un placeholder elegante con
@@ -12,7 +13,7 @@ export default function PhotoSlot({ src, alt, className = '' }) {
     return (
       <figure className={`overflow-hidden rounded-[20px] border border-gold-300/25 shadow-card ${className}`}>
         <img
-          src={src}
+          src={asset(src)}
           alt={alt}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.04]"

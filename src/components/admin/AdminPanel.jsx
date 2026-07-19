@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Camera, Check, LogOut, Lock, RefreshCw, Trash2 } from 'lucide-react'
 import escudo from '../../assets/escudo.png'
+import { asset } from '../../config/assets.js'
 import { FALLBACK, formatArs } from '../../config/campaign.js'
 import { donar, elViaje } from '../../config/content.js'
 
@@ -292,7 +293,7 @@ export default function AdminPanel() {
               {estado.fotos.map((foto) => (
                 <li key={foto.src} className="group relative">
                   <img
-                    src={foto.src}
+                    src={asset(foto.src)}
                     alt={foto.alt}
                     className="aspect-square w-full rounded-xl border border-gold-300/25 object-cover"
                   />

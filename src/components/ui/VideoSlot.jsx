@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { asset } from '../../config/assets.js'
 
 /*
  * Reproductor para videos locales.
@@ -29,8 +30,8 @@ export default function VideoSlot({ src, alt, className = '', poster, autoPlay =
     <figure className={`group overflow-hidden rounded-[20px] border border-gold-300/25 shadow-card ${className}`}>
       <video
         ref={videoRef}
-        src={src}
-        poster={poster}
+        src={asset(src)}
+        poster={poster ? asset(poster) : undefined}
         muted={autoPlay}
         loop={autoPlay}
         playsInline

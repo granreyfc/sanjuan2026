@@ -10,8 +10,9 @@ import Contacto from './components/sections/Contacto.jsx'
 import Footer from './components/sections/Footer.jsx'
 
 function App() {
-  // Ruta /admin: panel del club (sin router; una sola página especial)
-  if (window.location.pathname.startsWith('/admin')) {
+  // Ruta /admin: panel del club (sin router; una sola página especial).
+  // includes() para que funcione también bajo el base de GitHub Pages.
+  if (window.location.pathname.includes('/admin')) {
     return <AdminPanel />
   }
 

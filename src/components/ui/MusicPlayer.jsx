@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Music, Pause, Play, SkipForward, X } from 'lucide-react'
+import { asset } from '../../config/assets.js'
 import { musica } from '../../config/content.js'
 
 /*
@@ -41,7 +42,7 @@ export default function MusicPlayer() {
     <div className="fixed bottom-5 right-5 z-40">
       <audio
         ref={audioRef}
-        src={pista.src}
+        src={asset(pista.src)}
         preload="none"
         loop={pistas.length === 1}
         onEnded={siguiente}

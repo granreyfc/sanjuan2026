@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages sirve el sitio bajo https://granreyfc.github.io/sanjuan2026/
+  base: '/sanjuan2026/',
   plugins: [react(), tailwindcss()],
   server: {
     host: true,

@@ -212,7 +212,14 @@ async function manejarApi(req, res, ruta) {
 
 // ── Server ─────────────────────────────────────────────────────────────
 const server = createServer(async (req, res) => {
-  const ruta = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+  let ruta = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+
+  // El build lleva base /sanjuan2026/ (GitHub Pages); acá se lo quitamos
+  // para que el mismo dist funcione servido desde la raíz
+  const BASE = '/sanjuan2026'
+  if (ruta === BASE || ruta.startsWith(`${BASE}/`)) {
+    ruta = ruta.slice(BASE.length) || '/'
+  }
 
   try {
     if (ruta.startsWith('/api/')) return await manejarApi(req, res, ruta)

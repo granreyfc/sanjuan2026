@@ -27,7 +27,7 @@ export function iniciarAutoUpdate() {
 
   async function chequear() {
     try {
-      const res = await fetch(`/?v=${Date.now()}`, { cache: 'no-store' })
+      const res = await fetch(`${import.meta.env.BASE_URL}?v=${Date.now()}`, { cache: 'no-store' })
       if (!res.ok) return
       const html = await res.text()
       const publicado = html.match(/assets\/index-[\w-]+\.js/)?.[0]
