@@ -20,7 +20,7 @@
  * hoja pueden tardar un poco en verse en la página.
  */
 export const SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/1CZL1jdLPgZzNEYOE2177Y88LdlGWO1s2W_wsAEhvrH8/gviz/tq?tqx=out:csv'
+  'https://docs.google.com/spreadsheets/d/1CZL1jdLPgZzNEYOE2177Y88LdlGWO1s2W_wsAEhvrH8/gviz/tq?tqx=out:csv&sheet=Hoja%201'
 
 // Valores usados mientras SHEET_URL esté vacío o si la lectura falla.
 // La meta equivale a los 983 km de la ruta a $6.500 el kilómetro.
@@ -61,9 +61,9 @@ export function formatArs(amount) {
  * no se envía nada.
  */
 export const FORM_DONACIONES = {
-  url: '',
-  campoMonto: '',
-  campoKms: '',
+  url: 'https://docs.google.com/forms/d/e/1FAIpQLSfGb3fhOVoHUi0vCVO6PolEtmatGpGZK5xozbTbqKOnbQRiLg/formResponse',
+  campoMonto: 'entry.1883628862',
+  campoKms: 'entry.202458942',
 }
 
 export function registrarDonacion({ monto, kms }) {
