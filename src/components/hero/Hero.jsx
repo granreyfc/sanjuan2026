@@ -29,7 +29,7 @@ function Star({ size }) {
 }
 
 export default function Hero() {
-  const { raised } = useCampaign()
+  const { raised, donantes } = useCampaign()
   // Los km aportados desde este dispositivo también mueven el colectivo:
   // cuando cambian, la animación arranca de cero hasta la posición nueva
   const kmAportados = useKmAportados()
@@ -150,6 +150,7 @@ export default function Hero() {
               progress={progress}
               targetPct={targetPct}
               raised={raisedTotal}
+              donantes={donantes}
               aporte={aporte}
             />
           </div>

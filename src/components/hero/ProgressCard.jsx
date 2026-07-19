@@ -9,7 +9,7 @@ import { formatArs } from '../../config/campaign.js'
  * aporte: { kms, ts } del aporte recién confirmado; dispara el "+N km"
  * flotante y el destello del porcentaje (ts como key relanza el CSS).
  */
-export default function ProgressCard({ progress, targetPct, raised, aporte }) {
+export default function ProgressCard({ progress, targetPct, raised, donantes = 0, aporte }) {
   const t = targetPct > 0 ? progress / targetPct : 0
   const shownRaised = Math.round(raised * t)
 
@@ -62,6 +62,15 @@ export default function ProgressCard({ progress, targetPct, raised, aporte }) {
           <Crown size={20} strokeWidth={2} />
         </span>
       </div>
+
+      {donantes > 0 && (
+        <p className="mt-3 border-t border-gold-300/15 pt-3 text-sm text-muted">
+          Ya donaron{' '}
+          <strong className="font-slab text-gold-100">{donantes}</strong>{' '}
+          {donantes === 1 ? 'persona' : 'personas'}{' '}
+          <span className="text-gold-300">♥</span>
+        </p>
+      )}
     </div>
   )
 }

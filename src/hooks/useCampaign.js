@@ -16,29 +16,38 @@ function splitCsvLine(line) {
 }
 
 /*
- * Convención de la hoja: fila 1 = encabezados (meta, recaudado),
- * fila 2 = valores. Si los encabezados vienen en otro orden, se
- * respeta el orden de las columnas por nombre.
+ * Busca las etiquetas "meta", "recaudado" y "donantes" en CUALQUIER
+ * celda de la hoja y toma el valor de la celda de la derecha o, si no
+ * hay número ahí, la de abajo. Así el formato es flexible: sirve tanto
+ * en fila (etiquetas arriba, valores abajo) como en columna (etiqueta a
+ * la izquierda, valor a la derecha), y tolera filas/columnas de más.
  */
 function parseSheet(csv) {
-  const lines = csv.trim().split(/\r?\n/)
-  if (lines.length < 2) return null
+  const filas = csv
+    .trim()
+    .split(/\r?\n/)
+    .map((l) => splitCsvLine(l))
+  if (!filas.length) return null
 
-  const headers = splitCsvLine(lines[0]).map((h) => h.toLowerCase())
-  const values = splitCsvLine(lines[1])
-
-  let goalIdx = headers.indexOf('meta')
-  let raisedIdx = headers.indexOf('recaudado')
-  if (goalIdx === -1 || raisedIdx === -1) {
-    goalIdx = 0
-    raisedIdx = 1
+  const buscar = (etiqueta) => {
+    for (let f = 0; f < filas.length; f++) {
+      for (let c = 0; c < filas[f].length; c++) {
+        if (filas[f][c].toLowerCase().trim() !== etiqueta) continue
+        const derecha = parseAmount(filas[f][c + 1] ?? '')
+        if (Number.isFinite(derecha)) return derecha
+        const abajo = parseAmount(filas[f + 1]?.[c] ?? '')
+        if (Number.isFinite(abajo)) return abajo
+      }
+    }
+    return NaN
   }
 
-  const goal = parseAmount(values[goalIdx])
-  const raised = parseAmount(values[raisedIdx])
+  const goal = buscar('meta')
+  const raised = buscar('recaudado')
+  const donantes = buscar('donantes')
   if (!Number.isFinite(goal) || !Number.isFinite(raised) || goal <= 0) return null
 
-  return { goal, raised }
+  return { goal, raised, donantes: Number.isFinite(donantes) ? donantes : 0 }
 }
 
 /*
@@ -53,6 +62,7 @@ export function useCampaign() {
   const { ajusteRecaudado } = useAdminEstado()
   const [state, setState] = useState({
     ...FALLBACK,
+    donantes: 0,
     loading: Boolean(SHEET_URL),
     source: 'fallback',
   })
@@ -74,7 +84,7 @@ export function useCampaign() {
       .catch((err) => {
         if (err.name === 'AbortError') return
         console.warn('[campaña] No se pudo leer Google Sheets, uso fallback:', err)
-        setState({ ...FALLBACK, loading: false, source: 'fallback' })
+        setState({ ...FALLBACK, donantes: 0, loading: false, source: 'fallback' })
       })
 
     return () => controller.abort()

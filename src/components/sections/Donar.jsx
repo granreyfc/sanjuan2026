@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bus, Check, Copy, CreditCard, MapPin, MessageCircle, Route, X } from 'lucide-react'
 import { contacto, donar } from '../../config/content.js'
-import { formatArs, progressPct } from '../../config/campaign.js'
+import { formatArs, progressPct, registrarDonacion } from '../../config/campaign.js'
 import { useAnimatedProgress } from '../../hooks/useAnimatedProgress.js'
 import { useCampaign } from '../../hooks/useCampaign.js'
 import {
@@ -88,6 +88,8 @@ function ModalAporte({ seleccion, onCerrar }) {
     // Se persiste ya mismo (por si no vuelve de Mercado Pago); la UI
     // se entera al cerrar, para animar el mapa con el visitante mirando
     guardarKmAportados(seleccion.kms)
+    // Y queda registrado en la hoja del club (si el form está configurado)
+    registrarDonacion(seleccion)
     setFase('gracias')
   }
 

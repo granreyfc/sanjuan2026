@@ -43,3 +43,35 @@ const arsFormatter = new Intl.NumberFormat('es-AR', {
 export function formatArs(amount) {
   return arsFormatter.format(amount)
 }
+
+/*
+ * ── REGISTRO AUTOMÁTICO DE DONACIONES EN LA HOJA ──────────────────────
+ * Una página estática no puede escribir directo en Google Sheets; el
+ * puente estándar es un Formulario de Google vinculado a la hoja:
+ *
+ * 1. En la hoja: Herramientas → Crear un formulario nuevo.
+ * 2. Agregale dos preguntas de respuesta corta: "Monto" y "Kilómetros".
+ * 3. En el formulario: ⋮ → "Obtener vínculo previamente completado",
+ *    completá cualquier valor, "Obtener vínculo" y del link copiá los
+ *    ids `entry.NNNNN` de cada campo.
+ * 4. Pegá acá la URL del form (terminada en /formResponse) y los ids.
+ *
+ * Cada donación confirmada agrega una fila (con fecha) en la pestaña
+ * "Respuestas de formulario" de la misma hoja. Mientras url esté vacía,
+ * no se envía nada.
+ */
+export const FORM_DONACIONES = {
+  url: '',
+  campoMonto: '',
+  campoKms: '',
+}
+
+export function registrarDonacion({ monto, kms }) {
+  const { url, campoMonto, campoKms } = FORM_DONACIONES
+  if (!url) return
+  const datos = new URLSearchParams()
+  if (campoMonto) datos.append(campoMonto, String(monto))
+  if (campoKms) datos.append(campoKms, String(kms))
+  // no-cors: Google Forms no responde CORS; el envío igual llega
+  fetch(url, { method: 'POST', mode: 'no-cors', body: datos }).catch(() => {})
+}
