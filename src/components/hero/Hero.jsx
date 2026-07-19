@@ -30,17 +30,18 @@ function Star({ size }) {
 
 export default function Hero() {
   const { raised, donantes } = useCampaign()
-  // Los km aportados desde este dispositivo también mueven el colectivo:
-  // cuando cambian, la animación arranca de cero hasta la posición nueva
-  const kmAportados = useKmAportados()
+  // Las promesas recientes de este dispositivo mueven el colectivo al
+  // instante (la hoja tarda unos minutos en reflejarlas): cuando
+  // cambian, la animación arranca de cero hasta la posición nueva
+  const { recientes: kmRecientes } = useKmAportados()
 
   // ÚNICA fuente del porcentaje del viaje: kilómetros (igual que la
   // sección Donar). $ recaudados / valorPorKm = km recorridos, sobre el
   // total de km de la ruta. Así el % del colectivo y el de "Doná
   // kilómetros" siempre coinciden.
   const { total, valorPorKm } = donar.kilometros
-  const kmRecorridos = Math.min(total, Math.floor(raised / valorPorKm) + kmAportados)
-  const raisedTotal = raised + kmAportados * valorPorKm
+  const kmRecorridos = Math.min(total, Math.floor(raised / valorPorKm) + kmRecientes)
+  const raisedTotal = raised + kmRecientes * valorPorKm
   const targetPct = progressPct({ goal: total, raised: kmRecorridos })
   const progress = useAnimatedProgress(targetPct)
 

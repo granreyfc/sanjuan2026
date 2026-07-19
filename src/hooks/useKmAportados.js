@@ -1,38 +1,67 @@
 import { useSyncExternalStore } from 'react'
 
 /*
- * Kilómetros aportados desde este dispositivo, compartidos entre la
- * sección Donar y el Hero (el colectivo del mapa avanza con ellos).
- * Persisten en localStorage.
+ * Kilómetros prometidos desde este dispositivo (persisten en localStorage).
  *
- * El guardado y el aviso a la UI están separados a propósito: al
- * confirmar la donación se GUARDA ya mismo (por si el visitante nunca
- * vuelve de Mercado Pago), pero la UI recién se entera al cerrar el
- * modal, para que la animación del colectivo corra cuando el visitante
- * está mirando el mapa y no escondida detrás del modal.
+ * Cada promesa también queda registrada en la hoja del club vía el
+ * formulario, y la página suma TODAS las promesas de la hoja al
+ * recaudado. Para que el donante vea su aporte al instante sin contarlo
+ * dos veces cuando la hoja lo refleje (Google cachea unos minutos), las
+ * promesas locales solo suman al progreso durante una ventana de 30
+ * minutos: después de eso ya vienen incluidas en la suma de la hoja.
+ *
+ * - recientes: km locales dentro de la ventana (suman al progreso)
+ * - total: km históricos del dispositivo (para el "ya sumaste X km")
+ *
+ * Guardado y aviso a la UI separados a propósito: al confirmar se
+ * GUARDA ya mismo (por si nunca vuelve de Mercado Pago), pero la UI se
+ * entera al cerrar el modal, para animar el mapa con el visitante mirando.
  */
-const KEY = 'grfc-km-aportados'
-const listeners = new Set()
-let cache = null
+const KEY = 'grfc-km-aportados-v2'
+const VENTANA_MS = 30 * 60 * 1000
 
-function leer() {
-  const v = Number(localStorage.getItem(KEY))
-  return Number.isFinite(v) && v > 0 ? v : 0
+const listeners = new Set()
+let promesas = null
+let snapshot = { recientes: 0, cantRecientes: 0, total: 0 }
+
+function cargar() {
+  if (promesas !== null) return
+  try {
+    const arr = JSON.parse(localStorage.getItem(KEY))
+    promesas = Array.isArray(arr) ? arr : []
+  } catch {
+    promesas = []
+  }
+  recalcular()
 }
 
-export function getKmAportados() {
-  if (cache === null) cache = leer()
-  return cache
+function recalcular() {
+  const ahora = Date.now()
+  let recientes = 0
+  let cantRecientes = 0
+  let total = 0
+  for (const p of promesas) {
+    total += p.kms
+    if (ahora - p.ts < VENTANA_MS) {
+      recientes += p.kms
+      cantRecientes++
+    }
+  }
+  snapshot = { recientes, cantRecientes, total }
 }
 
 // Suma y persiste SIN avisar a la UI (ver notificarAporte)
 export function guardarKmAportados(kms) {
-  cache = getKmAportados() + kms
-  localStorage.setItem(KEY, String(cache))
+  cargar()
+  promesas.push({ kms, ts: Date.now() })
+  localStorage.setItem(KEY, JSON.stringify(promesas))
+  recalcular()
 }
 
 // Refresca a los suscriptos y emite el evento del festejo (+N km)
 export function notificarAporte(kms) {
+  cargar()
+  recalcular()
   listeners.forEach((l) => l())
   window.dispatchEvent(new CustomEvent('grfc:aporte', { detail: { kms } }))
 }
@@ -43,6 +72,9 @@ export function useKmAportados() {
       listeners.add(cb)
       return () => listeners.delete(cb)
     },
-    getKmAportados,
+    () => {
+      cargar()
+      return snapshot
+    },
   )
 }

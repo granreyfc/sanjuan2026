@@ -198,7 +198,7 @@ export default function Donar() {
   const { total, valorPorKm, titulo, subtitulo, labelRecorrido, labelPorRecorrer, mensajeCierre } =
     donar.kilometros
 
-  const kmAportados = useKmAportados()
+  const { recientes: kmRecientes, total: kmDelDispositivo } = useKmAportados()
   const [seleccion, setSeleccion] = useState(null)
 
   const cerrarModal = (confirmado) => {
@@ -211,7 +211,7 @@ export default function Donar() {
     document.getElementById('inicio')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const kmRecorridos = Math.min(total, Math.floor(raised / valorPorKm) + kmAportados)
+  const kmRecorridos = Math.min(total, Math.floor(raised / valorPorKm) + kmRecientes)
   const kmPorRecorrer = Math.max(0, total - kmRecorridos)
   const targetPctKm = progressPct({ raised: kmRecorridos, goal: total })
   const progresoKm = useAnimatedProgress(targetPctKm)
@@ -262,11 +262,11 @@ export default function Donar() {
             {mensajeCierre} Faltan <strong className="text-gold-100">{kmPorRecorrer} km</strong>.
           </p>
 
-          {kmAportados > 0 && (
+          {kmDelDispositivo > 0 && (
             <p className="mt-3 text-sm font-semibold text-gold-200">
               Desde este dispositivo ya sumaste{' '}
-              <span className="font-slab">{kmAportados} km</span>. ¡Gracias por empujar el
-              colectivo!
+              <span className="font-slab">{kmDelDispositivo} km</span>. ¡Gracias por empujar
+              el colectivo!
             </p>
           )}
         </Reveal>

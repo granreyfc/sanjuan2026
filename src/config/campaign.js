@@ -22,6 +22,13 @@
 export const SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1CZL1jdLPgZzNEYOE2177Y88LdlGWO1s2W_wsAEhvrH8/gviz/tq?tqx=out:csv&sheet=Hoja%201'
 
+// Pestaña donde el formulario deja cada promesa de donación (fecha,
+// monto, kilómetros). La página SUMA estos montos al recaudado de B2 y
+// cuenta las filas como donantes. Si alguien promete y nunca
+// transfiere, se corrige restando ese monto en B2 de Hoja 1.
+export const RESPUESTAS_URL =
+  'https://docs.google.com/spreadsheets/d/1CZL1jdLPgZzNEYOE2177Y88LdlGWO1s2W_wsAEhvrH8/gviz/tq?tqx=out:csv&sheet=Respuestas%20de%20formulario%201'
+
 // Valores usados mientras SHEET_URL esté vacío o si la lectura falla.
 // La meta equivale a los 983 km de la ruta a $6.500 el kilómetro.
 export const FALLBACK = {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FALLBACK, SHEET_URL } from '../config/campaign.js'
+import { FALLBACK, RESPUESTAS_URL, SHEET_URL } from '../config/campaign.js'
 import { useAdminEstado } from './useAdminEstado.js'
 
 // "$ 3.400.000" | "3,400,000" | "3400000" → 3400000
@@ -51,6 +51,34 @@ function parseSheet(csv) {
 }
 
 /*
+ * Pestaña de respuestas del formulario: una fila por promesa de
+ * donación. Devuelve la suma de los montos y cuántas promesas hay.
+ * Valida por encabezado ("monto") para no sumar cualquier cosa si la
+ * URL cayera en otra pestaña.
+ */
+function parsePromesas(csv) {
+  const filas = csv
+    .trim()
+    .split(/\r?\n/)
+    .map((l) => splitCsvLine(l))
+  if (filas.length < 1) return { suma: 0, cantidad: 0 }
+
+  const montoIdx = filas[0].findIndex((h) => h.toLowerCase().trim() === 'monto')
+  if (montoIdx === -1) return { suma: 0, cantidad: 0 }
+
+  let suma = 0
+  let cantidad = 0
+  for (const fila of filas.slice(1)) {
+    const monto = parseAmount(fila[montoIdx] ?? '')
+    if (Number.isFinite(monto) && monto > 0) {
+      suma += monto
+      cantidad++
+    }
+  }
+  return { suma, cantidad }
+}
+
+/*
  * Devuelve { goal, raised, loading, source }.
  * - Sin SHEET_URL configurada: valores de FALLBACK, sin request.
  * - Con SHEET_URL: fetch al CSV publicado; si algo falla, FALLBACK.
@@ -71,15 +99,30 @@ export function useCampaign() {
     if (!SHEET_URL) return
 
     const controller = new AbortController()
-    fetch(SHEET_URL, { signal: controller.signal })
-      .then((res) => {
+    const bajar = (url) =>
+      fetch(url, { signal: controller.signal }).then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.text()
       })
-      .then((csv) => {
-        const parsed = parseSheet(csv)
+
+    // Hoja 1 (meta + ajuste manual) y las promesas del formulario en
+    // paralelo; si las promesas fallan, la campaña sigue sin ellas
+    Promise.all([
+      bajar(SHEET_URL),
+      RESPUESTAS_URL ? bajar(RESPUESTAS_URL).catch(() => '') : Promise.resolve(''),
+    ])
+      .then(([csvHoja, csvPromesas]) => {
+        const parsed = parseSheet(csvHoja)
         if (!parsed) throw new Error('No pude interpretar la hoja (¿formato meta/recaudado?)')
-        setState({ ...parsed, loading: false, source: 'sheet' })
+        const promesas = parsePromesas(csvPromesas)
+        setState({
+          goal: parsed.goal,
+          // recaudado mostrado = ajuste manual (B2) + promesas del form
+          raised: parsed.raised + promesas.suma,
+          donantes: Math.max(parsed.donantes, promesas.cantidad),
+          loading: false,
+          source: 'sheet',
+        })
       })
       .catch((err) => {
         if (err.name === 'AbortError') return
