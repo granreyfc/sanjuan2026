@@ -9,7 +9,6 @@ import {
   notificarAporte,
   useKmAportados,
 } from '../../hooks/useKmAportados.js'
-import PhotoSlot from '../ui/PhotoSlot.jsx'
 import Reveal from '../ui/Reveal.jsx'
 import SectionHeading from '../ui/SectionHeading.jsx'
 
@@ -304,14 +303,13 @@ export default function Donar() {
           {donar.notaTransparencia}
         </Reveal>
 
-        {/* Datos de transferencia + QR */}
-        <div id="datos-bancarios" className="mx-auto mt-12 grid max-w-3xl grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_240px]">
+        {/* Datos de transferencia */}
+        <div id="datos-bancarios" className="mx-auto mt-12 max-w-3xl">
           <Reveal className="space-y-3 rounded-[20px] border border-gold-300/25 bg-[rgba(18,18,18,0.9)] p-6 shadow-card">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted sm:text-[11px]">
               <CreditCard size={15} className="text-gold-300" />
               Transferencia bancaria
             </p>
-            <DatoCopiable label="Alias" valor={donar.alias} />
             <DatoCopiable label="CBU" valor={donar.cbu} />
             <DatoCopiable label="Razón social" valor={donar.titular} />
             {/* Para quien transfiere por su cuenta, sin pasar por el modal */}
@@ -336,10 +334,6 @@ export default function Donar() {
                 Donar por Mercado Pago
               </a>
             )}
-          </Reveal>
-
-          <Reveal delay={150}>
-            <PhotoSlot {...donar.qr} className="aspect-square" />
           </Reveal>
         </div>
       </div>

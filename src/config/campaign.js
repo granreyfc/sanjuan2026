@@ -26,7 +26,7 @@ export const SHEET_URL = ''
 // La meta equivale a los 983 km de la ruta a $6.500 el kilómetro.
 export const FALLBACK = {
   goal: 6_389_500,
-  raised: 3_375_000,
+  raised: 0,
 }
 
 export function progressPct({ raised, goal }) {

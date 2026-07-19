@@ -44,11 +44,8 @@ export const elViaje = {
       texto: 'Comienza el sueño: primer partido del nacional.',
     },
   ],
-  fotos: [
-    { src: '/fotos/viaje-plantel.jpg', alt: 'El plantel entrenando' },
-    { src: '', alt: 'El colectivo del viaje' },
-    { src: '', alt: 'La ruta hacia San Juan' },
-  ],
+  // Las fotos del viaje se suben desde el panel /admin cuando arranque
+  fotos: [],
   // Recuerdo del último torneo nacional que jugó el club
   ultimoViaje: {
     titulo: 'El último nacional',
@@ -116,7 +113,6 @@ export const elClub = {
 }
 
 export const donar = {
-  alias: 'granreyfutbolclub',
   cbu: '0070117020000008411695',
   titular: 'ASOCIACION CIVIL GRAN REY DE SAN NICOLAS',
   mercadoPagoLink: '',
@@ -136,7 +132,6 @@ export const donar = {
     { monto: 13000, etiqueta: '2 kilómetros' },
     { monto: 32500, etiqueta: '5 kilómetros' },
   ],
-  qr: { src: '', alt: 'Código QR de Mercado Pago' },
   notaTransparencia:
     'Cada peso donado se destina exclusivamente al viaje: transporte, alojamiento, comidas e inscripción.',
 }
