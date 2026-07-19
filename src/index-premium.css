@@ -1,0 +1,722 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens del sistema "Black & Gold Legacy"
+ * (ver RECURSOS/Guia_de_Estilo_Gran_Rey_FC.md)
+ */
+@theme {
+  --color-bg: #080808;
+  --color-bg-secondary: #131313;
+  --color-bg-elevated: #101010;
+
+  --color-gold-50: #fff7d6;
+  --color-gold-100: #f6e7a1;
+  --color-gold-200: #e9d06d;
+  --color-gold-300: #d4af37;
+  --color-gold-400: #b88a2b;
+  --color-gold-500: #9a7223;
+  --color-gold-600: #7c6025;
+
+  --color-map: #c7a15a;
+
+  --color-ink: #f3f3f3;
+  --color-muted: #bebebe;
+  --color-soft: #8f8f8f;
+
+  --font-display: "Cinzel", "Cormorant Garamond", serif;
+  --font-sans: "Inter", "Manrope", system-ui, sans-serif;
+  /* Solo para el wordmark "GRAN REY FC" (no menúes, headers ni títulos) */
+  --font-brand: "Montserrat", sans-serif;
+  /* Arvo: cifras y datos (montos, %, stats, fechas) y etiquetas del mapa */
+  --font-slab: "Arvo", serif;
+
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.18);
+  --shadow-gold-hover: 0 15px 45px rgba(212, 175, 55, 0.28);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    /* Nada puede ensanchar la página en el celular: si algún elemento
+       se pasa, se recorta en vez de forzar zoom-out y descentrar todo */
+    overflow-x: clip;
+    /* Sutil brillo radial dorado que respira en el fondo */
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 80% 90%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--color-gold-300);
+    color: var(--color-bg);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Las anclas del menú no quedan tapadas por el navbar fijo (88px) */
+  section[id] {
+    scroll-margin-top: 96px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 3px;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.35);
+  }
+
+  /* Scrollbar premium dorada */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--color-gold-400), var(--color-gold-600));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--color-gold-300), var(--color-gold-500));
+  }
+
+  /* Si el usuario pide menos movimiento, todo aparece al instante:
+     los reveals se vuelven inmediatos y los loops quedan en su estado base */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Aparición al entrar al viewport: más dramática, con blur y escala */
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px) scale(0.96);
+    filter: blur(8px);
+    transition:
+      opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+
+  /* Entrada escalonada del hero al cargar la página: teatral y nítida */
+  .hero-rise {
+    animation: hero-rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Titileo de estrellas: más expresivo, con escala y rotación */
+  .star-twinkle {
+    opacity: var(--star-o, 0.4);
+    animation: twinkle var(--twinkle-duration, 5.5s) ease-in-out
+      var(--twinkle-delay, 0s) infinite;
+    will-change: opacity, transform;
+  }
+
+  /* Anillo que late sobre el pin de destino en el mapa: doble pulso con glow */
+  .pin-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: pin-pulse 3.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.8));
+  }
+
+  /* Los puntos del tramo recorrido avanzan hacia San Juan
+     (el período coincide con stroke-dasharray="1 24") */
+  .route-flow {
+    animation: route-flow 2.5s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(246, 231, 161, 0.9));
+  }
+
+  /* La carrocería del colectivo rebota suave, como andando por la ruta
+     (las ruedas y la sombra quedan fijas, simulando la suspensión) */
+  .bus-bob {
+    animation: bus-bob 1.1s ease-in-out infinite;
+  }
+
+  /* El faro delantero titila mientras el colectivo avanza */
+  .headlight-glow {
+    animation: headlight-glow 2.8s ease-in-out infinite;
+  }
+
+  /* Corazón de los CTA de donación: late como un corazón de verdad */
+  .heart-beat {
+    animation: heart-beat 1.7s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  /* El "vinilo" del reproductor de música gira mientras suena */
+  .vinyl-spin {
+    animation: vinyl-spin 5s linear infinite;
+  }
+
+  /* Anillo que late alrededor del botón de música cerrado: invita a
+     tocarlo, como el pin del mapa */
+  .music-ping::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    border: 2px solid rgba(212, 175, 55, 0.55);
+    animation: music-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+
+  /* "+N km" que flota sobre el porcentaje al confirmar un aporte */
+  .aporte-pop {
+    animation: aporte-pop 2.6s ease-out both;
+  }
+
+  /* Destello del porcentaje cuando se suman kilómetros */
+  .pct-flash {
+    animation: pct-flash 1.8s ease-out;
+  }
+
+  /* Despliegue del menú mobile */
+  .menu-drop {
+    animation: menu-drop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: top center;
+  }
+
+  /* Tarjetas premium: elevación, brillo en hover y micro-rotación 3D */
+  .rounded-\[20px\].border.border-gold-300\/20.bg-bg-elevated,
+  .rounded-\[20px\].border.border-gold-300\/25.bg-\[rgba\(18\,18\,18\,0\.9\)\],
+  .rounded-2xl.border.border-gold-300\/20.bg-bg-elevated {
+    transition:
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.7s ease;
+  }
+
+  .rounded-\[20px\].border.border-gold-300\/20.bg-bg-elevated:hover,
+  .rounded-\[20px\].border.border-gold-300\/25.bg-\[rgba\(18\,18\,18\,0\.9\)\]:hover,
+  .rounded-2xl.border.border-gold-300\/20.bg-bg-elevated:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.45),
+      0 0 30px rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.45);
+  }
+
+  /* Fotos: overlay dorado sutil al hover y zoom más elegante */
+  figure.overflow-hidden.rounded-\[20px\].border.border-gold-300\/25.shadow-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  figure.overflow-hidden.rounded-\[20px\].border.border-gold-300\/25.shadow-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 40%,
+      rgba(212, 175, 55, 0.12) 50%,
+      transparent 60%
+    );
+    transform: translateX(-130%);
+    transition: transform 1.3s ease;
+    pointer-events: none;
+  }
+
+  figure.overflow-hidden.rounded-\[20px\].border.border-gold-300\/25.shadow-card:hover::after {
+    transform: translateX(130%);
+  }
+
+  figure.overflow-hidden.rounded-\[20px\].border.border-gold-300\/25.shadow-card img {
+    transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  figure.overflow-hidden.rounded-\[20px\].border.border-gold-300\/25.shadow-card:hover img {
+    transform: scale(1.07);
+  }
+
+  /* Inputs y textareas: glow dorado al foco */
+  input,
+  textarea {
+    transition:
+      border-color 0.5s ease,
+      box-shadow 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  input:focus,
+  textarea:focus {
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15), 0 0 20px rgba(212, 175, 55, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Navbar: glassmorphism más intenso y glow en scroll */
+  header.fixed.inset-x-0.top-0.z-50 {
+    transition:
+      background-color 0.55s ease,
+      border-color 0.55s ease,
+      box-shadow 0.55s ease,
+      backdrop-filter 0.55s ease;
+  }
+
+  /* Links del menú: underline animado más llamativo */
+  header nav a.relative.text-\[13px\].font-semibold.uppercase.tracking-\[0\.14em\].text-muted {
+    transition: color 0.4s ease;
+  }
+
+  header nav a.relative.text-\[13px\].font-semibold.uppercase.tracking-\[0\.14em\].text-muted::after {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-gold-300), transparent);
+    border-radius: 2px;
+  }
+
+  /* Barra de progreso de lectura: shimmer dorado */
+  header span.absolute.inset-x-0.bottom-0.h-0\.5.origin-left.scale-x-0.bg-gradient-to-r.from-gold-500.via-gold-300.to-gold-100 {
+    background: linear-gradient(
+      90deg,
+      var(--color-gold-500),
+      var(--color-gold-300),
+      var(--color-gold-100),
+      var(--color-gold-300),
+      var(--color-gold-500)
+    );
+    background-size: 200% 100%;
+    animation: shimmer 4.5s linear infinite;
+  }
+
+  /* Barras de progreso (hero y kilómetros): un brillo las recorre
+     en loop marcando que la recaudación sigue "cargando" */
+  .bar-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bar-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 100%
+    );
+    transform: translateX(-130%);
+    animation: progress-shimmer 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Botones CTA: glow pulsante permanente */
+  .gold-shine {
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s ease;
+  }
+
+  .gold-shine::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      var(--color-gold-500),
+      var(--color-gold-300),
+      var(--color-gold-100),
+      var(--color-gold-300),
+      var(--color-gold-500)
+    );
+    background-size: 300% 100%;
+    z-index: -1;
+    opacity: 0;
+    filter: blur(12px);
+    animation: cta-glow 5s ease-in-out infinite;
+    transition: opacity 0.6s ease;
+  }
+
+  .gold-shine:hover::before {
+    opacity: 0.7;
+  }
+
+  /* El destello del CTA también corre solo cada unos segundos,
+     para atraer la mirada aunque nadie haga hover */
+  .gold-shine::after {
+    animation: auto-shine 5.5s ease-in-out 2s infinite;
+  }
+
+  .gold-shine:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Botón outline del navbar: brillo sutil al hover */
+  a.rounded-full.border.border-gold-300\/40.px-6.py-3.text-\[13px\].font-semibold.uppercase.tracking-\[0\.14em\].text-gold-100 {
+    position: relative;
+    overflow: hidden;
+    transition:
+      border-color 0.5s ease,
+      box-shadow 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  a.rounded-full.border.border-gold-300\/40.px-6.py-3.text-\[13px\].font-semibold.uppercase.tracking-\[0\.14em\].text-gold-100:hover {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+  }
+
+  /* Iconos circulares: pulse sutil al hover */
+  span.flex.h-11.w-11.items-center.justify-center.rounded-full.border.border-gold-300\/35.text-gold-300,
+  span.flex.h-11.w-11.shrink-0.items-center.justify-center.rounded-full.border.border-gold-300\/30.text-gold-300 {
+    transition:
+      transform 0.5s ease,
+      box-shadow 0.5s ease,
+      border-color 0.5s ease;
+  }
+
+  span.flex.h-11.w-11.items-center.justify-center.rounded-full.border.border-gold-300\/35.text-gold-300:hover,
+  span.flex.h-11.w-11.shrink-0.items-center.justify-center.rounded-full.border.border-gold-300\/30.text-gold-300:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+    border-color: rgba(212, 175, 55, 0.7);
+  }
+
+  /* Título hero: glow dorado animado */
+  h1 .gold-gradient-text,
+  h2 .gold-gradient-text {
+    animation: text-glow 6s ease-in-out infinite alternate;
+  }
+
+  /* Divisor con corona: brillo sutil */
+  div.mt-5.flex.items-center.justify-center.gap-4 svg,
+  div.mt-6.flex.items-center.gap-4 svg {
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+    animation: crown-pulse 5s ease-in-out infinite;
+  }
+
+  /* Badge de valores: hover con fondo brillante */
+  li.rounded-full.border.border-gold-300\/30.px-5.py-2.font-semibold.uppercase.tracking-\[0\.16em\].text-gold-200 {
+    transition:
+      background-color 0.5s ease,
+      border-color 0.5s ease,
+      box-shadow 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  li.rounded-full.border.border-gold-300\/30.px-5.py-2.font-semibold.uppercase.tracking-\[0\.16em\].text-gold-200:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.12);
+  }
+}
+
+@utility gold-shine {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 62%
+    );
+    transform: translateX(-150%);
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+
+  &:hover::after {
+    transform: translateX(150%);
+  }
+}
+
+@utility gold-gradient-text {
+  background: linear-gradient(
+    90deg,
+    #f6e7a1 0%,
+    #d4af37 25%,
+    #fff7d6 50%,
+    #d4af37 75%,
+    #9a7223 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gold-text-shimmer 8s linear infinite;
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.96);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--star-o, 0.4);
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: calc(var(--star-o, 0.4) * 0.65);
+    transform: scale(0.92) rotate(-8deg);
+  }
+  50% {
+    opacity: calc(var(--star-o, 0.4) * 1.35);
+    transform: scale(1.12) rotate(8deg);
+  }
+  75% {
+    opacity: calc(var(--star-o, 0.4) * 0.75);
+    transform: scale(0.95) rotate(-4deg);
+  }
+}
+
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.45);
+    opacity: 0.9;
+    stroke-width: 3;
+  }
+  70%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -25;
+  }
+}
+
+/* La ruta punteada se "dibuja" desde San Nicolás al cargar la página.
+   --route-len la setea MapRoute con el largo real del path. */
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: var(--route-len, 2000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Titileo de la guía punteada: marca el camino que falta recorrer */
+@keyframes route-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes bus-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+@keyframes headlight-glow {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(255, 247, 214, 0.9));
+  }
+  50% {
+    opacity: 0.55;
+    filter: drop-shadow(0 0 9px rgba(255, 247, 214, 0.5));
+  }
+}
+
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes music-ping {
+  0%,
+  15% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  75%,
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+@keyframes aporte-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.2);
+  }
+  30% {
+    transform: translateY(0) scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1);
+  }
+}
+
+@keyframes pct-flash {
+  0%,
+  100% {
+    text-shadow: none;
+  }
+  25% {
+    color: #fff7d6;
+    text-shadow:
+      0 0 16px rgba(246, 231, 161, 0.95),
+      0 0 42px rgba(212, 175, 55, 0.6);
+  }
+  60% {
+    color: #f6e7a1;
+  }
+}
+
+@keyframes heart-beat {
+  0%,
+  40%,
+  100% {
+    transform: scale(1);
+  }
+  8% {
+    transform: scale(1.25);
+  }
+  16% {
+    transform: scale(1);
+  }
+  24% {
+    transform: scale(1.15);
+  }
+}
+
+/* Barrido automático del destello sobre los CTA dorados: el brillo
+   cruza el botón una vez por ciclo y descansa el resto del tiempo */
+@keyframes auto-shine {
+  0%,
+  70% {
+    transform: translateX(-150%);
+  }
+  85%,
+  100% {
+    transform: translateX(150%);
+  }
+}
+
+@keyframes menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes progress-shimmer {
+  0%,
+  100% {
+    transform: translateX(-130%);
+  }
+  50% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes cta-glow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.85;
+  }
+}
+
+@keyframes gold-text-shimmer {
+  0% {
+    background-position: 250% 0;
+  }
+  100% {
+    background-position: -250% 0;
+  }
+}
+
+@keyframes text-glow {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+  }
+  100% {
+    filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.35));
+  }
+}
+
+@keyframes crown-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}

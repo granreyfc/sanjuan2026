@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens del sistema "Black & Gold Legacy"
+ * (ver RECURSOS/Guia_de_Estilo_Gran_Rey_FC.md)
+ */
+@theme {
+  --color-bg: #080808;
+  --color-bg-secondary: #131313;
+  --color-bg-elevated: #101010;
+
+  --color-gold-50: #fff7d6;
+  --color-gold-100: #f6e7a1;
+  --color-gold-200: #e9d06d;
+  --color-gold-300: #d4af37;
+  --color-gold-400: #b88a2b;
+  --color-gold-500: #9a7223;
+  --color-gold-600: #7c6025;
+
+  --color-map: #c7a15a;
+
+  --color-ink: #f3f3f3;
+  --color-muted: #bebebe;
+  --color-soft: #8f8f8f;
+
+  --font-display: "Cinzel", "Cormorant Garamond", serif;
+  --font-sans: "Inter", "Manrope", system-ui, sans-serif;
+  /* Solo para el wordmark "GRAN REY FC" (no menúes, headers ni títulos) */
+  --font-brand: "Montserrat", sans-serif;
+  /* Arvo: cifras y datos (montos, %, stats, fechas) y etiquetas del mapa */
+  --font-slab: "Arvo", serif;
+
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.18);
+  --shadow-gold-hover: 0 15px 45px rgba(212, 175, 55, 0.28);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-gold-300);
+    color: var(--color-bg);
+  }
+
+  /* Las anclas del menú no quedan tapadas por el navbar fijo (88px) */
+  section[id] {
+    scroll-margin-top: 96px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 3px;
+  }
+
+  /* Si el usuario pide menos movimiento, todo aparece al instante:
+     los reveals se vuelven inmediatos y los loops quedan en su estado base */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Aparición al entrar al viewport (ver <Reveal/>). transition-delay
+     inline permite escalonar elementos hermanos. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Entrada escalonada del hero al cargar la página */
+  .hero-rise {
+    animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Titileo suave de las estrellas decorativas. La opacidad base viene
+     por --star-o, así reduced-motion las deja en su opacidad normal. */
+  .star-twinkle {
+    opacity: var(--star-o, 0.4);
+    animation: twinkle var(--twinkle-duration, 3.5s) ease-in-out
+      var(--twinkle-delay, 0s) infinite;
+  }
+
+  /* Anillo que late sobre el pin de destino en el mapa */
+  .pin-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: pin-pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* Los puntos del tramo recorrido avanzan hacia San Juan
+     (el período coincide con stroke-dasharray="1 24") */
+  .route-flow {
+    animation: route-flow 1.5s linear infinite;
+  }
+
+  /* Despliegue del menú mobile */
+  .menu-drop {
+    animation: menu-drop 0.25s ease both;
+  }
+}
+
+@utility gold-shine {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 60%
+    );
+    transform: translateX(-130%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+  }
+
+  &:hover::after {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--star-o, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    opacity: calc(var(--star-o, 0.4) * 0.35);
+    transform: scale(0.85);
+  }
+}
+
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.85;
+  }
+  70%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -25;
+  }
+}
+
+/* La ruta completa se dibuja desde el inicio al cargar la página */
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: 2000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Titileo sutil de la ruta completa una vez dibujada */
+@keyframes route-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@utility gold-gradient-text {
+  background: linear-gradient(90deg, #f6e7a1, #d4af37, #9a7223);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
