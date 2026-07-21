@@ -73,8 +73,9 @@ export const musica = {
 
 export const elClub = {
   historia: [
-    'Gran Rey FC nació del sueño de un grupo de personas que querían afectar la sociedad por medio del deporte. De llegar a personas que quizás de otras formas no se llegaría. De mostrar que IGR es familia, una familia que abraza, apoya, alienta y acompaña en cada situación; dentro y fuera de la cancha',
-    'Hoy el equipo tiene la oportunidad de representar los valores y pilares de IGR a nivel nacional. Cada aporte nos acerca más a poder afectar la sociedad con un mensaje de esperanza, construyendo un equipo con valores cristianos que pueda competir con clubes de todo el pais',
+    'Gran Rey FC nació como un sueño en los años 80, en el corazón del pastor Hugo Weiss de querer afectar la sociedad por medio del deporte, y a personas que quizás de otras formas no se llegaría, de mostrar que IGR es familia, una familia que abraza, apoya, alienta y acompaña en cada situación; dentro y fuera de la cancha.',
+    'En el año 2019 ese sueño se hizo realidad y se fundo el club "Gran Rey FC", comenzando a competir en la liga local de futsal, con un plantel de jugadores que buscaba reflejar los valores de IGR y representarnos en cada partido.',
+    'Hoy el equipo tiene la oportunidad de representar los valores y pilares de IGR a nivel nacional. Cada aporte nos acerca más a poder afectar la sociedad con un mensaje de esperanza, construyendo un equipo con valores cristianos que pueda competir con clubes de todo el pais.',
   ],
   valores: ['Pertenencia', 'Esfuerzo', 'Humildad', 'Familia'],
   fotoPrincipal: { src: '/fotos/club-hinchada.jpg', alt: 'La hinchada de Gran Rey FC' },
